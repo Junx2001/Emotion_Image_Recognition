@@ -1,0 +1,9 @@
+
+<h2>{{ user.username }} !, here are the photos of {{ emotion }} in your album</h2>
+{% for photo in photos_list %}
+<ul>
+    <li>{{ photo.uploaded_time}}</li>
+    <li><img src="{{ photo.file }}"></li>
+</ul>
+{% endfor %}
+  
