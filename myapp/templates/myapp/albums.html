@@ -1,9 +1,8 @@
-
-<h2>{{ user.username }} !, here are the photos of {{ emotion }} in your album</h2>
+<h3>{{ user.username }} !, here are the photos of <h1>{{ emotion }}</h1> in your album</h3>
 {% for photo in photos_list %}
 <ul>
     <li>{{ photo.uploaded_time}}</li>
-    <li><img src="{{ photo.file }}"></li>
+    <li><img with="48" height="48" src="{{ photo.file }}"></li>
 </ul>
 {% endfor %}
   

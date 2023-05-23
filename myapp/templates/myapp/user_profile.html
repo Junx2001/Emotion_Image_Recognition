@@ -1,3 +1,12 @@
 <h2>User Profile</h2>
 <p>Username: {{ user_profile.username }}</p>
 <p>Email: {{ user_profile.email }}</p>
+
+<ul>
+    {% for key, value in albums.items %}
+      <li><h2>{{ key }}</h2></li>
+      {% for el in value %}
+        <p><img with="48" height="48" src="{{ el.file }}"></p>
+      {% endfor %}
+    {% endfor %}
+  </ul>

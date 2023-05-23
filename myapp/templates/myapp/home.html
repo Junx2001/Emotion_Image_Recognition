@@ -1,6 +1,4 @@
 <h2>Welcome, {{ user.username }}!</h2>
-<p>Password: {{ user.password }}</p>
-
 
 <h2>User Search</h2>
 <form method="get" action="{% url 'home' %}">
@@ -20,10 +18,12 @@
 
 <hr />
 <h2>Your Album</h2>
-<li><a href="{% url 'my_album' emotion="essai" %}"> essai</a></li>
-<li><a href="{% url 'my_album' emotion="sad" %}"> sad</a></li>
-<li><a href="{% url 'my_album' emotion="angry" %}"> angry</a></li>
-<li><a href="{% url 'my_album' emotion="happy" %}"> happy</a></li>
+
+{% for em in emotions %}
+  <li><a href="{% url 'my_album' emotion=em %}"> {{ em }}</a></li>
+{% endfor %}
+
+<hr />
 
 
 

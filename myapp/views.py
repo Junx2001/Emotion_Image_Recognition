@@ -8,9 +8,12 @@ from .models import UploadedFile
 
 from django.conf import settings
 
+from joblib import load
+import os
+from PIL import Image
+import pandas as pd
 
-
-
+emotions_list = ['essai','surprise', 'sad', 'neutral', 'happy','fear','disgust','angry']
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
@@ -41,7 +44,7 @@ def home_view(request):
     else:
         query = ""
         users = User.objects.all().exclude(is_staff=True)
-    return render(request, 'myapp/home.html', {'users': users, 'query': query})
+    return render(request, 'myapp/home.html', {'users': users, 'query': query, 'emotions':emotions_list})
 
 def register_view(request):
     if request.method == 'POST':
@@ -55,7 +58,13 @@ def register_view(request):
 
 def user_profile_view(request, user_id):
     user = get_object_or_404(User, id=user_id)
-    return render(request, 'myapp/user_profile.html', {'user_profile': user})
+    retour = {}
+    for em in emotions_list:
+        pict = UploadedFile.objects.filter(user_id=user_id,emotion=em)
+        for phot in pict: 
+            phot.file = settings.MEDIA_URL + str(phot.file)
+        retour[em] = pict
+    return render(request, 'myapp/user_profile.html', {'user_profile': user, 'albums':retour})
 
 def upload_file(request):
     if request.method == 'POST':
@@ -63,7 +72,20 @@ def upload_file(request):
         if form.is_valid():
             upload_file = form.save(commit=False) 
             upload_file.user = request.user
-            upload_file.emotion = "essai"
+
+            #on peut maintenant charger le modèle en utilisant le fichier joblib 
+            reg_loaded = load('model_saved.joblib')
+
+            pixel_number = 2305
+            im = Image.open(upload_file.file).convert("L")
+            im = im.resize((48, 48))
+            pixels = list(im.getdata())
+
+            numbers = ["pixel"+str(x) for x in range(1,2305)]
+            for_test = pd.DataFrame([pixels], columns=numbers)
+            prediction = reg_loaded.predict(for_test)
+
+            upload_file.emotion = prediction[0]
             upload_file.save()
             return redirect('home')  # Replace 'upload_success' with the URL name for success page or redirect to desired page
     else:
