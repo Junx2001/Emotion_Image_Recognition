@@ -11,4 +11,5 @@ urlpatterns = [
     path('profile/<int:user_id>/', views.user_profile_view, name='user_profile'),
     path('upload/', views.upload_file, name='upload'),
     path('my-albums/<str:emotion>/', views.my_album_view, name='my_album'),
+    path('upload-multiples/', views.upload_images, name='upload_images'),
 ]

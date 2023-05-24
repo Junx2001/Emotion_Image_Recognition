@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .forms import FileUploadForm
+from .forms import FileUploadForm, UploadImagesForm
 from .models import UploadedFile
 
 from django.conf import settings
@@ -39,12 +39,16 @@ def logout_view(request):
 def home_view(request):
     user = request.user
     latest_files = UploadedFile.objects.select_related('user').order_by('-uploaded_time')[:10]
+    for phot in latest_files: 
+        phot.file = settings.MEDIA_URL + str(phot.file)
     query = request.GET.get('q')
     if query:
-        users = User.objects.filter(username__icontains=query).exclude(is_staff=True)
+        #users = User.objects.filter(username__icontains=query).exclude(is_staff=True)
+        users = User.objects.filter(username__icontains=query).exclude(is_staff=True).exclude(id=user.id)
     else:
         query = ""
-        users = User.objects.all().exclude(is_staff=True)
+        #users = User.objects.all().exclude(is_staff=True)
+        users = User.objects.all().exclude(is_staff=True).exclude(id=user.id)
     return render(request, 'myapp/home.html', {'users': users, 'query': query, 'emotions':emotions_list, 'latest_files':latest_files})
 
 def register_view(request):
@@ -95,6 +99,44 @@ def upload_file(request):
         form = FileUploadForm()
 
     return render(request, 'myapp/upload.html', {'form': form})
+
+def upload_images(request):
+    if request.method == 'POST':
+        form = UploadImagesForm(request.POST, request.FILES)
+        if form.is_valid():
+            print("valid")
+            # Handle the uploaded images here
+
+            for image in form.cleaned_data['images']:
+                # Process each uploaded image as needed
+                # Save the image, create model instances, etc.
+                # Example: Saving the image
+                print(image)
+                upload_file = UploadedFile()
+                upload_file.file = image
+                upload_file.user = request.user
+
+                #We can now load the model using the joblib file
+                reg_loaded = load('model_saved.joblib')
+
+                #We convert the image into grayscale and we resize it into 48 pixels * 48 pixels
+                pixel_number = 2305
+                im = Image.open(image).convert("L")
+                im = im.resize((48, 48))
+                pixels = list(im.getdata())
+
+                #We use the model to predict the emotion contained in the image 
+                numbers = ["pixel"+str(x) for x in range(1,2305)]
+                for_test = pd.DataFrame([pixels], columns=numbers)
+                prediction = reg_loaded.predict(for_test)
+
+                upload_file.emotion = prediction[0]
+                upload_file.save()
+            return redirect('home')
+    else:
+        form = UploadImagesForm()
+    return render(request, 'myapp/upload_images.html', {'form': form})
+
     
 
 def my_album_view(request, emotion):

@@ -31,6 +31,7 @@
     <li><a href="{% url 'user_profile' user_id=photo.user_id %}"><img with="48" height="48" src="{{ photo.file }}"></a></li>
     <li>Uploaded at : {{ photo.uploaded_time}}</li>
     <li>Uploaded by : {{ photo.user.username}}</li>
+    <li>Emotion : {{ photo.emotion}}</li>
   </ul>
 {% endfor %}
 
@@ -41,3 +42,4 @@
 
 <a href="{% url 'logout' %}">Logout</a>
 <a href="{% url 'upload' %}">Upload</a>
+<a href="{% url 'upload_images' %}">Upload Mutliples</a>
