@@ -74,14 +74,16 @@ def upload_file(request):
             upload_file = form.save(commit=False) 
             upload_file.user = request.user
 
-            #on peut maintenant charger le modèle en utilisant le fichier joblib 
+            #We can now load the model using the joblib file
             reg_loaded = load('model_saved.joblib')
 
+            #We convert the image into grayscale and we resize it into 48 pixels * 48 pixels
             pixel_number = 2305
             im = Image.open(upload_file.file).convert("L")
             im = im.resize((48, 48))
             pixels = list(im.getdata())
 
+            #We use the model to predict the emotion contained in the image 
             numbers = ["pixel"+str(x) for x in range(1,2305)]
             for_test = pd.DataFrame([pixels], columns=numbers)
             prediction = reg_loaded.predict(for_test)
