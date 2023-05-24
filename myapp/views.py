@@ -38,13 +38,14 @@ def logout_view(request):
     
 def home_view(request):
     user = request.user
+    latest_files = UploadedFile.objects.select_related('user').order_by('-uploaded_time')[:10]
     query = request.GET.get('q')
     if query:
         users = User.objects.filter(username__icontains=query).exclude(is_staff=True)
     else:
         query = ""
         users = User.objects.all().exclude(is_staff=True)
-    return render(request, 'myapp/home.html', {'users': users, 'query': query, 'emotions':emotions_list})
+    return render(request, 'myapp/home.html', {'users': users, 'query': query, 'emotions':emotions_list, 'latest_files':latest_files})
 
 def register_view(request):
     if request.method == 'POST':

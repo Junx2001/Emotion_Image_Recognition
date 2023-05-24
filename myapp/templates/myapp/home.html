@@ -24,6 +24,18 @@
 {% endfor %}
 
 <hr />
+<h2>Latest files uploaded (A la une)</h2>
+
+{% for photo in latest_files %}
+  <ul>
+    <li><a href="{% url 'user_profile' user_id=photo.user_id %}"><img with="48" height="48" src="{{ photo.file }}"></a></li>
+    <li>Uploaded at : {{ photo.uploaded_time}}</li>
+    <li>Uploaded by : {{ photo.user.username}}</li>
+  </ul>
+{% endfor %}
+
+<hr />
+
 
 
 
